@@ -2,7 +2,7 @@
 # inference requires the automatically generated params_saved.py during training, which is located at model_dir. 
 # need to specify model_dir, data_root, and test filelist
 python inference.py \
-/home/tandat/projects/vocoder/freq_separate_filtered_prior/checkpoints/2prior \
+checkpoints/fregrad \
 checkpoints \
 filelists/test.txt \
 --step 1000000 \

@@ -4,3 +4,5 @@ tqdm
 librosa==0.8.1
 scipy
 tensorboard
+pytorch_wavelets
+pywavelets

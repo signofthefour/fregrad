@@ -81,8 +81,8 @@ def restore_from_checkpoint(model, model_dir, step, filename='weights'):
         return model, step
 
 def remove_cutoff_alias(lowpass, highpass):
-    # lowpass = torchaudio.functional.highpass_biquad(lowpass, sample_rate=22050//2, cutoff_freq=5)
-    # highpass = torchaudio.functional.highpass_biquad(highpass, sample_rate=22050//2, cutoff_freq=5)
+    lowpass = torchaudio.functional.highpass_biquad(lowpass, sample_rate=22050//2, cutoff_freq=5)
+    highpass = torchaudio.functional.highpass_biquad(highpass, sample_rate=22050//2, cutoff_freq=5)
     lowpass = torchaudio.functional.lowpass_biquad(lowpass, sample_rate=22050//2, cutoff_freq=5500)
     highpass = torchaudio.functional.lowpass_biquad(highpass, sample_rate=22050//2, cutoff_freq=5500)
     return lowpass, highpass
