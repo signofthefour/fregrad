@@ -2,7 +2,7 @@
 
 This repository is an official PyTorch implementation of the paper:
 
-> Tan Dat Nguyen*, Ji-Hoon Kim*, Youngjoon Jang, Jaehun Kim, Joon Son Chung. "FreGrad: lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
+> Tan Dat Nguyen*, Ji-Hoon Kim*, [Youngjoon Jang](https://art-jang.github.io/), Jaehun Kim, [Joon Son Chung](https://mmai.io/joon/). "FreGrad: lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
 >[[arxiv]](Updating)
 >[[demo]](https://mm.kaist.ac.kr/projects/FreGrad)
 >[[MMAI-KAIST]](https://mm.kaist.ac.kr/)
