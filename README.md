@@ -2,9 +2,10 @@
 
 This repository is an official PyTorch implementation of the paper:
 
-> Tan Dat Nguyen, Ji-Hoon Kim, Youngjoon Jang, Jaehun Kim, Joon Son Chung. "FreGrad: lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
+> Tan Dat Nguyen*, Ji-Hoon Kim*, Youngjoon Jang, Jaehun Kim, Joon Son Chung. "FreGrad: lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
 >[[arxiv]](Updating)
->
+>[[demo]](https://mm.kaist.ac.kr/projects/FreGrad)
+>[[MMAI-KAIST]](https://mm.kaist.ac.kr/)
 
 ![](./pics/fregrad.gif)
 
@@ -19,7 +20,7 @@ Refer to the [demo page](https://mm.kaist.ac.kr/projects/FreGrad) for the sample
 
 ## Quick Start and Examples
 
-1. Navigate to PriorGrad-vocoder root and install dependencies
+1. Navigate to FreGrad root and install dependencies
    ```bash
    # the codebase has been tested on Python 3.8 with PyTorch 1.8.2 LTS and 1.10.2 conda binaries
    pip install -r requirements.txt
@@ -64,7 +65,7 @@ checkpoints/
 
 
 The codebase defines `weights.pt` as a symbolic link of the latest checkpoint.
-Restore the link with `ln -s weights-3000000.pt weights.pt` to continue training (`__main__.py`), or perform inference (`inference.py`) without specifying `--step`
+Restore the link with `ln -s weights-1000000.pt weights.pt` to continue training (`__main__.py`), or perform inference (`inference.py`) without specifying `--step`
 
 ## Reference
 - [Official implementation of code PriorGrad-vocoder](https://github.com/microsoft/NeuralSpeech/tree/master/PriorGrad-vocoder)
