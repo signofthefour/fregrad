@@ -1,8 +1,8 @@
-## Official implementation of  __FreGrad: lightweight and fast frequency-aware diffusion vocoder (ICASSP 2024)__
+## Official implementation of  __FreGrad: Lightweight and fast frequency-aware diffusion vocoder (ICASSP 2024)__
 
 This repository is an official PyTorch implementation of the paper:
 
-> Tan Dat Nguyen*, Ji-Hoon Kim*, Youngjoon Jang, Jaehun Kim, Joon Son Chung. "FreGrad: lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
+> Tan Dat Nguyen*, Ji-Hoon Kim*, Youngjoon Jang, Jaehun Kim, Joon Son Chung. "FreGrad: Lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
 >[[arxiv]](Updating)
 >[[demo]](https://mm.kaist.ac.kr/projects/FreGrad)
 >[[MMAI-KAIST]](https://mm.kaist.ac.kr/)
@@ -76,7 +76,7 @@ If you find FreGrad useful to your work, please consider citing the paper as bel
       @INPROCEEDINGS{fregrad,
       author={Tan Dat Nguyen, Ji-Hoon Kim, Youngjoon Jang, Jaehun Kim, Joon Son Chung},
       booktitle={ICASSP 2024 - 2024 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 
-      title={FreGrad: lightweight and fast frequency-aware diffusion vocoder}, 
+      title={FreGrad: Lightweight and fast frequency-aware diffusion vocoder}, 
       year={2024},
       }
 
