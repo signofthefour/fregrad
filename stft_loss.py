@@ -2,6 +2,9 @@
 
 # Copyright 2019 Tomoki Hayashi
 #  MIT License (https://opensource.org/licenses/MIT)
+# * We simply adopt code from ParallelWaveGAN
+# * https://github.com/kan-bayashi/ParallelWaveGAN/blob/master/parallel_wavegan/losses/stft_loss.py
+# * This code is used for Equation 9 in our paper
 
 """STFT-based Loss modules."""
 

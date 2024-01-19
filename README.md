@@ -2,8 +2,8 @@
 
 This repository is an official PyTorch implementation of the paper:
 
-> Tan Dat Nguyen*, Ji-Hoon Kim*, [Youngjoon Jang](https://art-jang.github.io/), Jaehun Kim, [Joon Son Chung](https://mmai.io/joon/). "FreGrad: lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
->[[arxiv]](Updating)
+> [Tan Dat Nguyen](https://signofthefour.github.io/)*, [Ji-Hoon Kim](https://sites.google.com/view/jhoonkim/)*, [Youngjoon Jang](https://art-jang.github.io/), Jaehun Kim, [Joon Son Chung](https://mmai.io/joon/). "FreGrad: lightweight and fast frequency-aware diffusion vocoder." _ICASSP_ (2024).
+>[[arxiv]](https://arxiv.org/abs/2401.10032)
 >[[demo]](https://mm.kaist.ac.kr/projects/FreGrad)
 >[[MMAI-KAIST]](https://mm.kaist.ac.kr/)
 
@@ -20,10 +20,13 @@ Refer to the [demo page](https://mm.kaist.ac.kr/projects/FreGrad) for the sample
 
 ## Quick Start and Examples
 
+> I recommend user to use VSCode Better Comments to easily find out our comments that show our contributions as described in paper.
+
 1. Navigate to FreGrad root and install dependencies
    ```bash
    # the codebase has been tested on Python 3.8 with PyTorch 1.8.2 LTS and 1.10.2 conda binaries
    pip install -r requirements.txt
+   chmod +x train.sh inference.sh
    ```
 
 2. Modify `filelists/train.txt`, `filelists/valid.txt`, `filelists/test.txt` so that the filelists point to the absolute path of the wav files. The codebase provides the LJSpeech dataset template. Here, we also provided randomly generated filelists we used to train our model that reported in paper.
@@ -67,8 +70,11 @@ checkpoints/
 The codebase defines `weights.pt` as a symbolic link of the latest checkpoint.
 Restore the link with `ln -s weights-1000000.pt weights.pt` to continue training (`__main__.py`), or perform inference (`inference.py`) without specifying `--step`
 
-## Reference
+## References
+Our backbone code is based on following opensource:
 - [Official implementation of code PriorGrad-vocoder](https://github.com/microsoft/NeuralSpeech/tree/master/PriorGrad-vocoder)
+
+> We give thanks to reference open-sources for kindly publish their code for research community.
 
 ## Citations
 If you find FreGrad useful to your work, please consider citing the paper as below:

@@ -38,20 +38,6 @@ from pytorch_wavelets import DWT1DForward, DWT1DInverse
 Linear = nn.Linear
 ConvTranspose2d = nn.ConvTranspose2d
 
-def dwt_fn(y, dwt, scale=1.):
-    yA, yC= dwt(y)
-    yAA, yAC = dwt(yA)
-    yCA, yCC = dwt(yC[0])
-    y = torch.cat((yAA, yAC[0], yCA, yCC[0]), dim=1)
-    return y * scale
-
-def idwt_fn(x, idwt, scale=1.):
-    x /= scale
-    x_low_low, x_low_high, x_high_low, x_high_high = x.chunk(4, dim=1)
-    x_low = idwt([x_low_low, [x_low_high]])
-    x_high = idwt([x_high_low, [x_high_high]])
-    x = idwt([x_low, [x_high]])
-    return x #/ x.shape[1]a
 
 def Conv1d(*args, **kwargs):
     layer = nn.Conv1d(*args, **kwargs)
@@ -67,7 +53,9 @@ def silu(x):
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
         super().__init__()
-        self.register_buffer('embedding', self._build_embedding(max_steps), persistent=False)
+        self.register_buffer(
+            "embedding", self._build_embedding(max_steps), persistent=False
+        )
         self.projection1 = Linear(128, 512)
         self.projection2 = Linear(512, 512)
 
@@ -114,26 +102,72 @@ class SpectrogramUpsampler(nn.Module):
 
 
 class DWTDilatedConv1D(nn.Conv1d):
-    def __init__(self, in_channels: int, out_channels: int, kernel_size, stride = 1, padding = 0, dilation = 1, groups: int = 1, bias: bool = True, padding_mode: str = 'zeros', device=None, dtype=None):
-        super().__init__(in_channels * 2, out_channels * 2, kernel_size, stride, padding, dilation, groups, bias, padding_mode, device, dtype)
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size,
+        stride=1,
+        padding=0,
+        dilation=1,
+        groups: int = 1,
+        bias: bool = True,
+        padding_mode: str = "zeros",
+        device=None,
+        dtype=None,
+    ):
+        """ We simply derive nn.Conv1D module and add two more function
+            DWT1DForward() and DWT1DInverse()
+        """
+        super().__init__(
+            in_channels * 2,
+            out_channels * 2,
+            kernel_size,
+            stride,
+            padding,
+            dilation,
+            groups,
+            bias,
+            padding_mode,
+            device,
+            dtype,
+        )
         self.dwt = DWT1DForward()
         self.idwt = DWT1DInverse()
         self.out_channels = out_channels
 
     def forward(self, x):
+        """Frequency-aware Dilated Convolution
+        Fig.3 in our paper
+
+        Args:
+            x (torch.Tensor): [B, C, L] abstract features inside model flow 
+
+        Returns:
+            torch.Tensor: [B, C, L]
+        """
         l, [h] = self.dwt(x)
         x = super().forward(torch.cat((l, h), dim=1))
-        x = self.idwt([x[:, :self.out_channels, :], [x[:, self.out_channels:, :]]])
+        x = self.idwt([x[:, : self.out_channels, :], [x[:, self.out_channels :, :]]])
         return x
+
 
 class ResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
-        self.dilated_conv = DWTDilatedConv1D(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
+        self.dilated_conv = DWTDilatedConv1D(
+            residual_channels,
+            2 * residual_channels,
+            kernel_size=3,
+            padding=dilation,
+            dilation=dilation,
+        )
         self.diffusion_projection = Linear(512, residual_channels)
         self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
         if n_cond_global is not None:
-            self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
+            self.conditioner_projection_global = Conv1d(
+                n_cond_global, 2 * residual_channels, 1
+            )
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
@@ -154,15 +188,16 @@ class ResidualBlock(nn.Module):
         return (x + residual) / sqrt(2.0), skip
 
 
-class PriorGrad(nn.Module):
+class FreGrad(nn.Module):
     def __init__(self, params):
         super().__init__()
         self.params = params
         self.use_prior = params.use_prior
         self.condition_prior = params.condition_prior
         self.condition_prior_global = params.condition_prior_global
-        assert not (self.condition_prior and self.condition_prior_global),\
-          "use only one option for conditioning on the prior"
+        assert not (
+            self.condition_prior and self.condition_prior_global
+        ), "use only one option for conditioning on the prior"
         print("use_prior: {}".format(self.use_prior))
         self.n_mels = params.n_mels
         self.n_cond = None
@@ -174,21 +209,37 @@ class PriorGrad(nn.Module):
         if self.condition_prior_global:
             self.n_cond = 1
 
-        self.input_projection = Conv1d(params.audio_channels, params.residual_channels, 1)
+        self.input_projection = Conv1d(
+            params.audio_channels, params.residual_channels, 1
+        )
         self.diffusion_embedding = DiffusionEmbedding(len(params.noise_schedule))
         self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
         if self.condition_prior_global:
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
-        self.residual_layers = nn.ModuleList([
-            ResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length),
-                          n_cond_global=self.n_cond)
-            for i in range(params.residual_layers)
-        ])
-        self.skip_projection = Conv1d(params.residual_channels, params.residual_channels, 1)
-        self.output_projection = Conv1d(params.residual_channels, params.audio_channels, 1)
+        self.residual_layers = nn.ModuleList(
+            [
+                ResidualBlock(
+                    self.n_mels,
+                    params.residual_channels,
+                    2 ** (i % params.dilation_cycle_length),
+                    n_cond_global=self.n_cond,
+                )
+                for i in range(params.residual_layers)
+            ]
+        )
+        self.skip_projection = Conv1d(
+            params.residual_channels, params.residual_channels, 1
+        )
+        self.output_projection = Conv1d(
+            params.residual_channels, params.audio_channels, 1
+        )
         nn.init.zeros_(self.output_projection.weight)
 
-        print('num param: {}'.format(sum(p.numel() for p in self.parameters() if p.requires_grad)))
+        print(
+            "num param: {}".format(
+                sum(p.numel() for p in self.parameters() if p.requires_grad)
+            )
+        )
 
     def forward(self, audio, spectrogram, diffusion_step, global_cond=None):
         x = self.input_projection(audio)
@@ -198,7 +249,6 @@ class PriorGrad(nn.Module):
         spectrogram = self.spectrogram_upsampler(spectrogram)
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
-
 
         skip = []
         for layer in self.residual_layers:
