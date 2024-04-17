@@ -1,4 +1,5 @@
 ## Official implementation of  __FreGrad: Lightweight and fast frequency-aware diffusion vocoder (ICASSP 2024)__
+(Oral presentation)
 
 This repository is an official PyTorch implementation of the paper:
 
