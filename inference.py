@@ -337,7 +337,7 @@ def main(args):
                 audio = torch.clamp(audio, -1.0, 1.0)
         # * OPTIONAL: here, we remove the cutoff alias, a phenomenon cause by redundant information
         # * around cutoff frequency band
-        if params.enable_remove_cutoff_alias:
+        if hasattr(params, "enable_remove_cutoff_alias") and params.enable_remove_cutoff_alias:
             l, h = remove_cutoff_alias(audio[:, 0:1, :], audio[:, 1:2, :])
         else:
             l, h = audio[:, 0:1, :], audio[:, 1:2, :]
