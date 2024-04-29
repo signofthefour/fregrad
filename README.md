@@ -80,7 +80,7 @@ Our backbone code is based on following opensource:
 ## Citations
 If you find FreGrad useful to your work, please consider citing the paper as below:
 
-      @INPROCEEDINGS{fregrad,
+      @INPROCEEDINGS{nguyen2024fregrad,
       author={Tan Dat Nguyen, Ji-Hoon Kim, Youngjoon Jang, Jaehun Kim, Joon Son Chung},
       booktitle={ICASSP 2024 - 2024 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 
       title={FreGrad: Lightweight and fast frequency-aware diffusion vocoder}, 
