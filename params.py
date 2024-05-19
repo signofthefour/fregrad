@@ -90,7 +90,6 @@ params = AttrDict(
     max_grad_norm=None,
     use_l2loss=True,
     audio_channels=2,
-    
     # * Data params, Sec. 4.1
     sample_rate=22050,
     n_mels=80,
@@ -99,7 +98,6 @@ params = AttrDict(
     fmin=0,
     fmax=8000,
     crop_mel_frames=62,  # PriorGrad keeps the previous open-source implementation
-   
     # new data params for PriorGrad-vocoder
     use_prior=True,
     # optional parameters to additionally use the frame-level energy as the conditional input
@@ -120,5 +118,6 @@ params = AttrDict(
     dilation_cycle_length=7,
     noise_schedule=gammas.numpy().tolist(),  # We use zero-SNR noise schedule to train model and inference process
     inference_noise_schedule=gammas.numpy().tolist(),  # T=50
+    # Inference only
     enable_remove_cutoff_alias=True,
 )

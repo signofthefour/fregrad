@@ -50,6 +50,7 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 
 device = torch.device("cuda")
 
+
 def draw_fullband_spec(audio: torch.Tensor, axs):
     audio = audio.squeeze().cpu().numpy()
     D = librosa.stft(audio)  # STFT of y
@@ -176,6 +177,8 @@ def main(args):
     import params_saved
 
     params = params_saved.params
+    if params.enable_remove_cutoff_alias:
+        print("| > Enable remove_cutoff_alias(): ")
     from params import enforce_zero_terminal_snr
 
     # * Override noise_schedule param for additional tests
@@ -320,12 +323,15 @@ def main(args):
             for n in range(len(alpha) - 1, -1, -1):
                 c1 = 1 / alpha[n] ** 0.5
                 c2 = beta[n] / (1 - alpha_cum[n]) ** 0.5
-                audio = c1 * ( audio - c2 * model(
-                                                audio,
-                                                spectrogram,
-                                                torch.tensor([T[n]], device=audio.device),
-                                                global_cond,
-                                            ).squeeze(1)
+                audio = c1 * (
+                    audio
+                    - c2
+                    * model(
+                        audio,
+                        spectrogram,
+                        torch.tensor([T[n]], device=audio.device),
+                        global_cond,
+                    ).squeeze(1)
                 )
 
                 if n > 0:
@@ -337,14 +343,18 @@ def main(args):
                 audio = torch.clamp(audio, -1.0, 1.0)
         # * OPTIONAL: here, we remove the cutoff alias, a phenomenon cause by redundant information
         # * around cutoff frequency band
-        if hasattr(params, "enable_remove_cutoff_alias") and params.enable_remove_cutoff_alias:
+        # * To reproduce the value as reported in paper, please use remove_cutoff_alias
+        if (
+            hasattr(params, "enable_remove_cutoff_alias")
+            and params.enable_remove_cutoff_alias
+        ):
             l, h = remove_cutoff_alias(audio[:, 0:1, :], audio[:, 1:2, :])
         else:
             l, h = audio[:, 0:1, :], audio[:, 1:2, :]
         # * Convert output in wavelet domain back to origin waveform's domain
         # * Equation 7 in our paper
         audio_pred = idwt((l, [h])).squeeze(1)
-        # 
+        #
         gen_dur.append(time() - start)
         n_samples.append(audio_pred.shape[-1])
         sample_name = "{:04d}.wav".format(i + 1)
@@ -355,6 +365,7 @@ def main(args):
             sample_rate=model.params.sample_rate,
         )
     print("RTF: ", sum(gen_dur) / sum(n_samples) * 22050)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="runs inference from the test set filelist")
